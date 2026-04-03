@@ -1,0 +1,86 @@
+<div>
+  <div
+    [@openClose]="getIsOpen() ? (getOpenTab() === 1 || getOpenTab() == 3 ? 'open' : 'openWide') : 'closed'"
+    id='rightPanel'
+  >
+    <div *ngIf='getOpenTab() === 1' class='page1'>
+      <app-settings-panel></app-settings-panel>
+    </div>
+    <div *ngIf='getOpenTab() === 2' class='page2'>
+      <app-equation-panel></app-equation-panel>
+    </div>
+    <div *ngIf='getOpenTab() === 3' class='page3'>
+      <div id='helpWrapper'>
+        <panel-section>
+          <title-block>帮助</title-block>
+          <div style='padding: 10px 0 10px 10px; width: calc(100% - 20px);'>
+            <button-block icon='help_center' [click]='gotoHelpSite'>教程视频</button-block>
+            <!--           <button-block icon='info' [click]='sendNotReady'>Restart Tutorial</button-block> -->
+            <subtitle-block>LinkMotion 基于开源项目！欢迎参与开发。</subtitle-block>
+            <button-block customIcon='github' [click]='gotoGithub'>Github 仓库</button-block>
+          </div>
+        </panel-section>
+        <panel-section>
+          <title-block
+            description='需要附加文件？请发邮件至 gr-pmksplus@wpi.edu'>
+            发送反馈
+          </title-block>
+          <form [formGroup]='commentForm'>
+            <mat-form-field class='max-width'>
+              <mat-label>留言</mat-label>
+              <textarea type='text' matInput formControlName='comment'></textarea>
+              <mat-error *ngIf="commentForm.controls['comment'].hasError('required')">
+                留言内容不能为空
+              </mat-error>
+            </mat-form-field>
+            <mat-checkbox color='primary' formControlName='response'>我希望收到回复</mat-checkbox>
+            <mat-form-field *ngIf='commentForm.value.response' class='max-width'>
+              <mat-label>邮箱</mat-label>
+              <input type='email' matInput formControlName='email' [errorStateMatcher]='matcher'
+                     placeholder='例如：pat@example.com'>
+              <mat-error
+                *ngIf="commentForm.controls['email'].hasError('email') && !commentForm.controls['email'].hasError('required')">
+                邮箱地址无效
+              </mat-error>
+            </mat-form-field>
+            <mat-checkbox color='primary' checked formControlName='diagnostics'>发送浏览器和版本数据
+            </mat-checkbox>
+            <mat-checkbox color='primary' checked formControlName='project'>发送当前项目的副本
+            </mat-checkbox>
+            <div style='padding: 10px 0 10px 10px; width: calc(100% - 20px);'>
+              <button-block [disabled]='sendingEmail' icon='send' [click]='sendCommentEmail.bind(this)'>发送消息
+              </button-block>
+            </div>
+          </form>
+        </panel-section>
+      </div>
+    </div>
+    <div *ngIf='getOpenTab() === 4' class='page4'>
+      <div id='debugWrapper'>
+        <panel-section>
+          <button-block icon='terminal' [click]='printActiveObject.bind(this)'>控制台输出当前对象</button-block>
+          <button-block icon='terminal' [click]='printMechanism.bind(this)'>控制台输出机构</button-block>
+          <button-block icon='draw' [click]='redrawAllLinks.bind(this)'>重新绘制</button-block>
+          <button-block icon='quiz' [click]='runGeometryUnitTests.bind(this)'>运行交叉单元测试
+          </button-block>
+          <button-block icon='report' [click]='turnOnDebugger.bind(this)'>开启网格调试信息</button-block>
+
+          <app-linkage-table></app-linkage-table>
+
+          <li>GridState: {{debugGetGridState()}}</li>
+          <li>LinkState: {{debugGetLinkState()}}</li>
+          <li>JointState: {{debugGetJointState()}}</li>
+          <li>ForceState: {{debugGetForceState()}}</li>
+          <li>AOS.objType: <b>{{activeObjService.objType}}</b></li>
+          <li>AOS.selectedJoint.id: <b>{{activeObjService.selectedJoint?.id}}</b></li>
+          <li>AOS.selectedLink.id: <b>{{activeObjService.selectedLink?.id}}</b></li>
+          <li>AOS.selectedForce.id: <b>{{activeObjService.selectedForce?.id}}</b></li>
+          <li>AOS.prevSelectedJoint.id: <b>{{activeObjService.prevSelectedJoint?.id}}</b></li>
+          <li>AOS.selectedForce.isStartSelected:  {{activeObjService.selectedForce?.isStartSelected}}</li>
+          <li>AOS.selectedForce.isEndSelected:  {{activeObjService.selectedForce?.isEndSelected}}</li>
+          <div style='height: 50px'></div>
+        </panel-section>
+      </div>
+    </div>
+  </div>
+</div>

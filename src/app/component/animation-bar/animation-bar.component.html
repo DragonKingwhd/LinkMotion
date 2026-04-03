@@ -1,0 +1,132 @@
+<!--https://stackoverflow.com/questions/33193512/css-center-element-on-x-and-y-->
+<div id='barContainer'>
+  <div id='animationBar'>
+    <button id='speedButton'
+            [disabled]='invalidMechanism()'
+            mat-mini-fab
+            color='white'
+            (click)='handleSpeedChange()'
+            matTooltip='更改动画速度'
+            matTooltipShowDelay='1000'
+    >
+      {{this.mechanismService.mechanismAnimationIncrement === 4 ? 3 :
+      this.mechanismService.mechanismAnimationIncrement}}x
+    </button>
+
+    <button
+      [disabled]='invalidMechanism()'
+      *ngIf='!this.getStaticAnimating()'
+      mat-mini-fab
+      color='primary'
+      (click)="startAnimation('play')"
+      matTooltip='播放动画'
+      matTooltipShowDelay='1000'
+    >
+      <mat-icon>play_arrow</mat-icon>
+    </button>
+    <button
+      [disabled]='invalidMechanism()'
+      *ngIf='this.getStaticAnimating()'
+      mat-mini-fab
+      color='primary'
+      (click)="startAnimation('pause')"
+      matTooltip='暂停动画'
+      matTooltipShowDelay='1000'
+    >
+      <mat-icon>pause</mat-icon>
+    </button>
+    <button
+      mat-mini-fab
+      color='warn'
+      [disabled]='invalidMechanism()'
+      (click)="startAnimation('stop')"
+      matTooltip='重置到起始位置'
+      matTooltipShowDelay='1000'
+    >
+      <mat-icon>stop</mat-icon>
+    </button>
+  </div>
+  <div id='animationBar'>
+    <div id='timeInputWrapper'>
+      <div id='tLabel'>T:</div>
+      <form #simpleForm='ngForm' (ngSubmit)='onNewTimeSubmit(simpleForm)'
+            (click)='invalidMechanism() ? null :field.select()'>
+        <input
+          [disabled]='invalidMechanism()'
+          id='animationBar-input'
+          name='timestep'
+          type='number'
+          [(ngModel)]='timestepDisplay'
+          #field
+        />
+      </form>
+      <span id='secLabel'>秒</span>
+    </div>
+
+    <mat-slider
+      [disabled]='invalidMechanism()'
+      min='0'
+      max='{{ maxTimeSteps() }}'
+      (mousedown)='sliderDown()'
+      (mousemove)='sliderChange()'
+      (mouseup)='sliderUp()'
+    >
+      <input id='slider' matSliderThumb value='{{this.mechanismService.mechanismTimeStep}}' />
+    </mat-slider>
+  </div>
+  <div id='viewButtons'>
+    <button
+      *ngIf='settingsService.isForces.value'
+      disabled='{{ noLinkExsits() }}'
+      matTooltip='显示质心'
+      matTooltipPosition='above'
+      [matTooltipShowDelay]='1000'
+      mat-icon-button
+      color='primary'
+      (click)='showCenterOfMass()'
+    >
+      <mat-icon svgIcon='{{ comIconName() }}'></mat-icon>
+    </button>
+    <button
+      disabled='{{ noJointExsits() }}'
+      matTooltip='显示标签'
+      matTooltipPosition='above'
+      [matTooltipShowDelay]='1000'
+      mat-icon-button
+      color='primary'
+      (click)='onShowIDPressed()'
+    >
+      <mat-icon svgIcon='{{ idLabelIconName() }}'></mat-icon>
+    </button>
+    <button
+      matTooltip='放大'
+      matTooltipPosition='above'
+      [matTooltipShowDelay]='1000'
+      mat-icon-button
+      color='primary'
+      (click)='onZoomInPressed()'
+    >
+      <mat-icon>zoom_in</mat-icon>
+    </button>
+    <button
+      matTooltip='缩小'
+      matTooltipPosition='above'
+      [matTooltipShowDelay]='1000'
+      mat-icon-button
+      color='primary'
+      (click)='onZoomOutPressed()'
+    >
+      <mat-icon>zoom_out</mat-icon>
+    </button>
+    <button
+      matTooltip='重置视图'
+      matTooltipPosition='above'
+      [matTooltipShowDelay]='1000'
+      mat-icon-button
+      color='primary'
+      (click)='this.svgGrid.scaleToFitLinkage()'
+    >
+      <mat-icon>crop_free</mat-icon>
+    </button>
+  </div>
+</div>

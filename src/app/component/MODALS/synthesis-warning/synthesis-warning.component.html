@@ -1,0 +1,11 @@
+<div class='modal'>
+    <h1 mat-dialog-title>综合操作将删除所有已有机构。</h1>
+    <div mat-dialog-content>
+      <p>综合功能将根据三个位姿生成一个四杆机构。现有机构将不会被保存。确定要继续吗？
+      </p>
+    </div>
+    <div mat-dialog-actions align='end'>
+        <button mat-button mat-dialog-close>返回</button>
+      <button mat-button cdkFocusInitial mat-dialog-close (click)="goToSynthesisTab()">继续</button>
+    </div>
+  </div>

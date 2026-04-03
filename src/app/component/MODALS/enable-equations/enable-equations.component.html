@@ -1,0 +1,17 @@
+<div class='modal' id='equationsDialog'>
+  <div class='dialog-header'>
+    <h1 mat-dialog-title>启用方程功能？</h1>
+    <button mat-icon-button mat-dialog-close>
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <p style='max-width: 500px; padding: 24px'>
+    此功能提供逐步引导，使用环路方程求解运动学和力学数值，可用于验证您自己的计算结果。
+    显示所有环路方程，可同时求解整个连杆机构的位置、速度、加速度和力。您首先需要选择能提供足够方程来求解每个未知值的环路。
+  </p>
+  <app-not-ready-warning></app-not-ready-warning>
+  <div mat-dialog-actions align='end'>
+    <button mat-button (click)='onNoClick()'>取消</button>
+    <button mat-raised-button cdkFocusInitial (click)='onYesClick()' color='primary'>启用方程</button>
+  </div>
+</div>

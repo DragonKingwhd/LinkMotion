@@ -1,0 +1,24 @@
+<div id='equationWrapper'>
+  <panel-section>
+    <app-not-ready-warning></app-not-ready-warning>
+    <title-block
+      description='这些方程可以同时求解整个连杆机构的位置、速度、加速度和力。您首先需要选择能够提供足够方程来求解每个未知值的环路。'>
+      机构方程
+    </title-block>
+    <collapsible-subseciton titleLabel='环路选择' [expanded]='true'>
+      <img src='assets/placeholder.png' alt='placeholder'>
+    </collapsible-subseciton>
+    <collapsible-subseciton titleLabel='位置'>
+    </collapsible-subseciton>
+    <collapsible-subseciton titleLabel='速度' [expanded]='true'>
+      <img src='assets/placeholder2.png' alt='placeholder'>
+    </collapsible-subseciton>
+    <collapsible-subseciton titleLabel='加速度'>
+    </collapsible-subseciton>
+    <collapsible-subseciton titleLabel='力（静态）' [expanded]='true'>
+      <img src='assets/placeholder3.png' alt='placeholder'>
+    </collapsible-subseciton>
+    <collapsible-subseciton titleLabel='力（动态）'>
+    </collapsible-subseciton>
+  </panel-section>
+</div>

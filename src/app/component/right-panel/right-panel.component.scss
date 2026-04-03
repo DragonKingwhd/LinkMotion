@@ -1,0 +1,74 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+
+@mixin css($theme) {
+  // Get the color config from the theme.
+  $color-config: mat.get-color-config($theme);
+  // Get the primary color palette from the color-config.
+  $primary-palette: map.get($color-config, 'primary');
+  $typography-config: mat.get-typography-config($theme);
+  $background: map.get($theme, background);
+  $foreground: map.get($theme, foreground);
+
+  #rightPanel {
+    //pointer-events: none;
+    position: absolute;
+    top: 30px;
+    right: 0px;
+    // width: 300px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-height: calc(100% - 128px);
+    display: flex;
+    border-radius: var(--border-radius);
+
+    animation-duration: 4s;
+
+    //Check here for 2nd parameter options: node_modules/@angular/material/core/theming/_palette.scss: Line 674
+    // background-color: mat.get-color-from-palette($background, 'background');
+    // background-color: mat.get-color-from-palette($primary-palette, 50);
+
+    .page1 {
+      width: 300px;
+      //height: 100%;
+      // border-radius: var(--border-radius);
+    }
+
+    .page2 {
+      //position: absolute;
+      //top: 0;
+      //right: 0;
+      width: 500px;
+      //overflow-y: visible;
+      ////Be careful, there are multiple places to change this value
+      //height: 1000px;
+      // border-radius: var(--border-radius);
+    }
+
+    .page3 {
+      width: 300px;
+    }
+
+    .page4 {
+      width: 500px;
+    }
+  }
+
+  #debugWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  #helpWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .max-width {
+    width: 100%;
+  }
+}

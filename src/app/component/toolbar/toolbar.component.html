@@ -1,0 +1,69 @@
+<nav class='navBar' id='{{isDevMode() ? "devModeColor" : ""}}'>
+  <img
+    class='pmksImage'
+    alt='PMKS+'
+    src='assets/PMKS_logo.png'
+    onClick='window.location.reload()'
+  />
+  <button mat-button onclick="window.open(window.location.origin, '_blank'); logEvent(this.analytics, 'new_file');"
+          matTooltip='在新标签页中打开空白项目' matTooltipShowDelay='1000'>
+    <mat-icon>note_add</mat-icon>
+    新建
+  </button>
+  <input #csvInput style='display: none' type='file' accept='text' (change)='upload($event)' />
+  <button mat-button (click)='csvInput.click()' matTooltip='从本地设备打开连杆文件'
+          matTooltipShowDelay='1000'>
+    <mat-icon>file_open</mat-icon>
+    打开
+  </button>
+  <button mat-button (click)='openTemplates()' matTooltip='显示可用的连杆模板库'
+          matTooltipShowDelay='1000' id='templatesButton'>
+    <mat-icon>apps</mat-icon>
+    模板库
+  </button>
+  <button mat-button (click)='downloadLinkage()' matTooltip='将当前连杆保存到本地设备'
+          matTooltipShowDelay='1000'>
+    <mat-icon>save</mat-icon>
+    保存
+  </button>
+  <button mat-button (click)='copyURL()' matTooltip='复制包含当前连杆的URL到剪贴板'
+          matTooltipShowDelay='1000'>
+    <mat-icon>link</mat-icon>
+    分享项目
+  </button>
+  <div class='spacer'></div>
+  <ng-container *ngIf='isDevMode()' matTooltip='此消息和调试面板将在生产模式中消失'
+                matTooltipShowDelay='1000'>
+    <p style='font-size: 10px; pointer-events: none; max-height: 50px; max-width: 270px;'>
+      当前处于开发模式。使用生产标志构建后，颜色将恢复正常。</p>
+  </ng-container>
+  <button *ngIf='isDevMode()' mat-button (click)='openRightPanelDebug()'
+          matTooltip='此按钮在生产模式中不会显示'
+          matTooltipShowDelay='1000'>
+    <mat-icon>bug_report</mat-icon>
+    调试
+  </button>
+ <button mat-button (click)='handleUndo()' matTooltip='撤销' [disabled]='!canUndo()' matTooltipShowDelay='1000'>
+   <mat-icon>undo</mat-icon>
+   撤销
+ </button>
+ <button mat-button (click)='handleRedo()' matTooltip='重做' [disabled]='!canRedo()' matTooltipShowDelay='1000'>
+   <mat-icon>redo</mat-icon>
+   重做
+  </button>
+  <button mat-button (click)='openRightPanelSettings()' matTooltip='更改连杆设置' matTooltipShowDelay='1000'>
+    <mat-icon>settings</mat-icon>
+    设置
+  </button>
+  <button mat-button *ngIf='settingsService.isEquationsEnabled.value' (click)='openRightPanelEquations()'
+          matTooltip='查看平衡方程'
+          matTooltipShowDelay='1000'>
+    <mat-icon>format_list_numbered</mat-icon>
+    方程
+  </button>
+  <button mat-button (click)='openRightPanelHelp()' matTooltip='获取帮助和支持' matTooltipShowDelay='1000'
+          id='helpButton'>
+    <mat-icon>help</mat-icon>
+    帮助 / 反馈
+  </button>
+</nav>

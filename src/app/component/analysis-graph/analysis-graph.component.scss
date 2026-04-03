@@ -1,0 +1,70 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+
+@mixin css($theme) {
+  // Get the color config from the theme.
+  $color-config: mat.get-color-config($theme);
+  // Get the primary color palette from the color-config.
+  $primary-palette: map.get($color-config, 'primary');
+  $accent-palette: map.get($color-config, 'accent');
+  $typography-config: mat.get-typography-config($theme);
+  $background: map.get($theme, background);
+  $foreground: map.get($theme, foreground);
+
+  #graph-checkbox-list-three {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-left: 4px;
+    padding-right: 10px;
+    margin-top: -10px;
+    margin-bottom: 5px;
+  }
+
+  #graph-checkbox-list-two {
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: flex-start;
+    gap: 20px;
+    padding-left: 4px;
+    padding-right: 10px;
+    margin-top: -10px;
+    margin-bottom: 5px;
+  }
+
+  #shift-up {
+    margin-top: -100px;
+    background-color: red;
+  }
+
+  #graphHide {
+    background-color: rgb(255, 255, 255);
+    position: absolute;
+    top: 100px;
+    left: 0;
+    width: 100%;
+    height: 240px;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    color: black;
+    border-radius: var(--border-radius);
+    pointer-events: none;
+    padding-top: 80px;
+  }
+
+  apx-chart > div {
+    min-height: 0 !important;
+    height: 225px !important;
+  }
+
+  #csvDownload {
+    width: 100%;
+    border-color: mat.get-color-from-palette($primary-palette, 500) !important;
+    margin-top: -20px;
+    margin-bottom: 10px;
+  }
+}

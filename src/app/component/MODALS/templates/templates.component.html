@@ -1,0 +1,22 @@
+<div class='dialog_root' id='templates'>
+  <div class='dialog-header'>
+    <h1>连杆模板库</h1>
+    <button mat-icon-button mat-dialog-close>
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div mat-dialog-content id='remove_top_padding'>
+    <div *ngFor='let category of categories' class='category-section'>
+      <h3 class='category-title'>{{category}}</h3>
+      <div class='linkage-grid'>
+        <panel-section *ngFor='let t of getTemplatesByCategory(category)' (click)='openLinkage(t)' class='template-card'>
+          <title-block>{{t.name}}</title-block>
+          <p class='template-desc'>{{t.description}}</p>
+          <button mat-flat-button color='primary'>打开</button>
+        </panel-section>
+      </div>
+    </div>
+  </div>
+
+</div>

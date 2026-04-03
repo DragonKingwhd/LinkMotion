@@ -1,0 +1,23 @@
+<div>
+  <div class='tabContainer'>
+    <button mat-icon-button class='leftButton' (click)='tabClicked(TabID.EDIT)' matTooltip='设计' matTooltipShowDelay='0'
+            matTooltipPosition='right'>
+      <mat-icon svgIcon='edit_outline'></mat-icon>
+    </button>
+    <button mat-icon-button class='leftButton' (click)='tabClicked(TabID.ANALYZE)' matTooltip='分析' matTooltipShowDelay='0'
+            matTooltipPosition='right'>
+      <mat-icon>query_stats</mat-icon>
+    </button>
+    <div [@activeTab]=this.getTabNum().toString() class='activeTabPill'>
+    </div>
+  </div>
+  <div [@openClose]="this.tabs.isTabVisible() ? (this.tabs.getCurrentTab() === TabID.ANALYZE ? 'openWide' : 'open') : 'closed'" class='panel'>
+    <div *ngIf='this.tabs.getCurrentTab() === TabID.EDIT' class='page2'>
+      <app-synthesis-panel></app-synthesis-panel>
+      <app-edit-panel></app-edit-panel>
+    </div>
+    <div *ngIf='this.tabs.getCurrentTab() === TabID.ANALYZE' class='page3'>
+      <app-analysis-panel></app-analysis-panel>
+    </div>
+  </div>
+</div>

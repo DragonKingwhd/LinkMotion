@@ -1,0 +1,550 @@
+<div id='analysisWrapper'>
+
+  <!--
+    //Param 1: analysis: "force","stress","kinematic"
+
+    //Param 2: analysisType: IF analysis == force: "statics","dynamic"
+    //Param 2: analysisType: IF analysis == kinematic: "loop","ic"
+
+    //Param 3: mechProp: IF analysis == force: "Input Torque","Joint Forces"
+    //Param 3: mechProp: IF analysis == kinematic: "Linear Joint Pos","Linear Joint Vel","Linear Joint Acc",
+    //"Linear Link's CoM Pos","Linear Link's CoM Vel","Linear Link's CoM Acc",
+    //"Angular Link Pos","Angular Link Vel",Angular Link Acc"
+
+    //Param 4: mechPart: If Joint 'a','b','c'... If Link 'ab','bc','cd'...
+  -->
+
+  <panel-section-collapsible
+    [warning]='true'
+    [expanded]='false'
+    id='placeholderContainer'
+    *ngIf='!this.mechanismService.oneValidMechanismExists()'
+  >
+    <title-block alwaysShown icon='expand_more'
+                 description='此连杆机构无效，无法进行分析。请确保满足以下所有要求：'>
+      分析帮助
+    </title-block>
+    <mat-list class='example-list-wrapping'>
+      <mat-list-item lines='3'>
+        <span matListItemTitle>必须有一个输入</span>
+        <span>机构必须有且仅有一个关节被定义为输入。</span>
+      </mat-list-item>
+      <mat-list-item lines='2'>
+        <span matListItemTitle>至少一个关节需要接地</span>
+        <span>输入关节同时也是固定关节。</span>
+      </mat-list-item>
+      <mat-list-item lines='3'>
+        <span matListItemTitle>不能有孤立关节</span>
+        <span>
+          不属于任何连杆的关节是孤立的。请删除或连接孤立关节。
+        </span>
+      </mat-list-item>
+      <mat-list-item lines='3'>
+        <span matListItemTitle>不能有悬浮连杆</span>
+        <span>
+          不连接到固定关节的连杆是悬浮的。请删除或连接悬浮连杆。
+        </span>
+      </mat-list-item>
+      <mat-list-item lines='3'>
+        <span matListItemTitle>自由度必须为1</span>
+        <span>DOF = 3*(连杆数-1) - 2*(关节数)。转动副和移动副都需要计算在内。</span>
+      </mat-list-item>
+      <mat-list-item lines='3'>
+        <span matListItemTitle>焊接连杆视为一根连杆</span>
+        <span>
+          如果两根或更多连杆在一个关节处焊接在一起，则应按1根连杆计算。
+        </span>
+      </mat-list-item>
+    </mat-list>
+  </panel-section-collapsible>
+
+  <!-- Valid Mech but Nothing Selected -->
+
+  <panel-section-collapsible
+    [warning]='true'
+    [expanded]='false'
+    id='placeholderContainer'
+    *ngIf="(this.activeSrv.objType == 'Grid' || this.activeSrv.objType == 'Nothing') && this.mechanismService.oneValidMechanismExists()"
+  >
+    <title-block alwaysShown icon='expand_more' description='选择连杆机构的一个部件来进行分析。'>分析
+      帮助
+    </title-block>
+    <img src='assets/gifs/Click.gif' />
+  </panel-section-collapsible>
+
+  <!-- Joint Kinematics-->
+  <panel-section
+    id='analysis-panel'
+    *ngIf="validMechanisms() && this.activeSrv.objType == 'Joint'"
+  >
+    <title-block
+      description='输入速度设置为 {{settingsService.inputSpeed.value.toFixed(2)}} RPM，
+      方向为{{settingsService.isInputCW ? "顺时针" : "逆时针"}}。可在设置面板中更改。'>
+      关节 {{this.activeSrv.selectedJoint.name}} 的分析
+    </title-block>
+
+    <collapsible-subseciton titleLabel='运动学分析'
+                            [expanded]="graphExpanded['JKineAna']"
+                            (opened)="graphExpanded['JKineAna'] = true"
+                            (closed)="graphExpanded['JKineAna'] = false">
+
+      <mat-expansion-panel
+        [expanded]="graphExpanded['JPos']"
+        (opened)="graphExpanded['JPos'] = true"
+        (closed)="graphExpanded['Jpos'] = false"
+      >
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            关节 {{this.activeSrv.selectedJoint.name}} 的位置
+          </mat-panel-title>
+          <mat-panel-description>
+            <mat-icon
+              matTooltip='选定关节的X和Y位置随时间的变化图'
+              [matTooltipShowDelay]='1000'
+              id='graph-help'
+            >help_outline
+            </mat-icon
+            >
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <app-analysis-graph
+          *ngIf='graphExpanded["JPos"]'
+          analysis='kinematic'
+          analysisType='loop'
+          mechProp='Linear Joint Pos'
+          mechPart='{{ this.activeSrv.selectedJoint.id }}'
+        ></app-analysis-graph>
+      </mat-expansion-panel>
+
+      <mat-expansion-panel
+        [expanded]="graphExpanded['JVel']"
+        (opened)="graphExpanded['JVel'] = true"
+        (closed)="graphExpanded['JVel'] = false"
+      >
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            关节 {{this.activeSrv.selectedJoint.name}} 的速度
+          </mat-panel-title>
+          <mat-panel-description>
+            <mat-icon
+              matTooltip='选定关节的速度图'
+              [matTooltipShowDelay]='1000'
+              id='graph-help'
+            >help_outline
+            </mat-icon
+            >
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <app-analysis-graph
+          *ngIf='graphExpanded["JVel"]'
+          analysis='kinematic'
+          analysisType='loop'
+          mechProp='Linear Joint Vel'
+          mechPart='{{ this.activeSrv.selectedJoint.id }}'
+        ></app-analysis-graph>
+      </mat-expansion-panel>
+
+      <mat-expansion-panel
+        [expanded]="graphExpanded['JAcc']"
+        (opened)="graphExpanded['JAcc'] = true"
+        (closed)="graphExpanded['JAcc'] = false"
+      >
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            关节 {{this.activeSrv.selectedJoint.name}} 的加速度
+          </mat-panel-title>
+          <mat-panel-description>
+            <mat-icon
+              matTooltip='选定关节的加速度图'
+              [matTooltipShowDelay]='1000'
+              id='graph-help'
+            >help_outline
+            </mat-icon
+            >
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <app-analysis-graph
+          *ngIf='graphExpanded["JAcc"]'
+          analysis='kinematic'
+          analysisType='loop'
+          mechProp='Linear Joint Acc'
+          mechPart='{{ this.activeSrv.selectedJoint.id }}'
+        ></app-analysis-graph>
+      </mat-expansion-panel>
+    </collapsible-subseciton>
+
+    <collapsible-subseciton *ngIf='settingsService.isForces.value' titleLabel='力分析'
+                            [expanded]="graphExpanded['JForceAna']"
+                            (opened)="graphExpanded['JForceAna'] = true"
+                            (closed)="graphExpanded['JForceAna'] = false">
+
+      <radio-block
+        tooltip='选择力分析在静力平衡还是动态条件下进行。动态分析的输入速度在设置面板中设定。'
+        option1='静力（平衡）'
+        option2='运动中（动态）'
+        [formGroup]='this.inputSpeedFormGroup'
+        _formControl='speed'
+      >力分析类型
+      </radio-block
+      >
+
+      <mat-expansion-panel
+        [expanded]="graphExpanded['JForce']"
+        (opened)="graphExpanded['JForce'] = true"
+        (closed)="graphExpanded['JForce'] = false"
+      >
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            关节 {{this.activeSrv.selectedJoint.name}} 上的力
+          </mat-panel-title>
+          <mat-panel-description>
+            <mat-icon
+              matTooltip='选定关节受力随时间的变化图'
+              [matTooltipShowDelay]='1000'
+              id='graph-help'
+            >help_outline
+            </mat-icon
+            >
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <app-analysis-graph
+          *ngIf='graphExpanded["JForce"]'
+          analysis='force'
+          analysisType="{{ this.inputSpeedFormGroup.value.speed === 'One' ? 'dynamic' : 'static' }}"
+          mechProp='Joint Forces'
+          mechPart='{{ this.activeSrv.selectedJoint.id }}'
+        ></app-analysis-graph>
+      </mat-expansion-panel>
+
+      <mat-expansion-panel
+        *ngIf='this.activeSrv.selectedJoint.input'
+        [expanded]="graphExpanded['JInputForce']"
+        (opened)="graphExpanded['JInputForce'] = true"
+        (closed)="graphExpanded['JInputForce'] = false"
+      >
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            关节 {{this.activeSrv.selectedJoint.name}} 的输入力矩
+          </mat-panel-title>
+          <mat-panel-description>
+            <mat-icon
+              matTooltip='输入关节施加到机构的力矩随时间的变化图。仅当选定关节为固定且为输入时可用。'
+              [matTooltipShowDelay]='1000'
+              id='graph-help'
+            >help_outline
+            </mat-icon
+            >
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <app-analysis-graph
+          *ngIf='graphExpanded["JInputForce"]'
+          analysis='force'
+          analysisType="{{ this.inputSpeedFormGroup.value.speed === 'One' ? 'dynamic' : 'static' }}"
+          mechProp='Input Torque'
+          mechPart='{{ this.activeSrv.selectedJoint.id }}'
+        ></app-analysis-graph>
+      </mat-expansion-panel>
+    </collapsible-subseciton>
+
+  </panel-section>
+
+  <!-- Link Kinematics-->
+  <panel-section
+    id='analysis-panel'
+    *ngIf="validMechanisms() && this.activeSrv.objType == 'Link'"
+  >
+    <title-block
+      description='输入速度设置为 {{settingsService.inputSpeed.value.toFixed(2)}} RPM，
+      方向为{{settingsService.isInputCW ? "顺时针" : "逆时针"}}。可在设置面板中更改。'>
+      连杆 {{this.activeSrv.selectedLink.name}} 的运动学分析
+    </title-block>
+
+    <!-- <subtitle-block>Kinematics</subtitle-block> -->
+
+    <!--
+    //Param 1: analysis: "force","stress","kinematic"
+
+    //Param 2: analysisType: IF analysis == force: "statics","dynamic"
+    //Param 2: analysisType: IF analysis == kinematic: "loop","ic"
+
+    //Param 3: mechProp: IF analysis == force: "Input Torque","Joint Forces"
+    //Param 3: mechProp: IF analysis == kinematic: "Linear Joint Pos","Linear Joint Vel","Linear Joint Acc",
+    //"Linear Link's CoM Pos","Linear Link's CoM Vel","Linear Link's CoM Acc",
+    //"Angular Link Pos","Angular Link Vel",Angular Link Acc"
+
+    //Param 4: mechPart: If Joint 'a','b','c'... If Link 'ab','bc','cd'...
+  -->
+
+    <collapsible-subseciton titleLabel='运动学分析' [expanded]="graphExpanded['LKineAna']"
+                            (opened)="graphExpanded['LKineAna'] = true"
+                            (closed)="graphExpanded['LKineAna'] = false">
+      <mat-expansion-panel
+        [expanded]="graphExpanded['LAng']"
+        (opened)="graphExpanded['LAng'] = true"
+        (closed)="graphExpanded['LAng'] = false"
+      >
+        <mat-expansion-panel-header>
+          <mat-panel-title>连杆 {{this.activeSrv.selectedLink.name}} 的角度</mat-panel-title>
+          <mat-panel-description>
+            <mat-icon
+              matTooltip='选定连杆相对水平方向的角度随时间的变化图'
+              [matTooltipShowDelay]='1000'
+              id='graph-help'
+            >help_outline
+            </mat-icon
+            >
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <app-analysis-graph
+          *ngIf='graphExpanded["LAng"]'
+          analysis='kinematic'
+          analysisType='loop'
+          mechProp='Angular Link Pos'
+          mechPart='{{ this.activeSrv.selectedLink.id }}'
+        ></app-analysis-graph>
+      </mat-expansion-panel>
+
+      <mat-expansion-panel
+        [expanded]="graphExpanded['LAngVel']"
+        (opened)="graphExpanded['LAngVel'] = true"
+        (closed)="graphExpanded['LAngVel'] = false"
+      >
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-panel-title>
+              连杆 {{this.activeSrv.selectedLink.name}} 的角速度
+            </mat-panel-title>
+          </mat-panel-title>
+          <mat-panel-description>
+            <mat-icon
+              matTooltip='选定连杆的角速度图'
+              [matTooltipShowDelay]='1000'
+              id='graph-help'
+            >help_outline
+            </mat-icon
+            >
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <app-analysis-graph
+          *ngIf='graphExpanded["LAngVel"]'
+          analysis='kinematic'
+          analysisType='loop'
+          mechProp='Angular Link Vel'
+          mechPart='{{ this.activeSrv.selectedLink.id }}'
+        ></app-analysis-graph>
+      </mat-expansion-panel>
+
+      <mat-expansion-panel
+        [expanded]="graphExpanded['LAngAcc']"
+        (opened)="graphExpanded['LAngAcc'] = true"
+        (closed)="graphExpanded['LAngAcc'] = false"
+      >
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-panel-title>
+              连杆 {{this.activeSrv.selectedLink.name}} 的角加速度
+            </mat-panel-title>
+          </mat-panel-title>
+          <mat-panel-description>
+            <mat-icon
+              matTooltip='选定连杆的角加速度图'
+              [matTooltipShowDelay]='1000'
+              id='graph-help'
+            >help_outline
+            </mat-icon
+            >
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <app-analysis-graph
+          *ngIf='graphExpanded["LAngAcc"]'
+          analysis='kinematic'
+          analysisType='loop'
+          mechProp='Angular Link Acc'
+          mechPart='{{ this.activeSrv.selectedLink.id }}'
+        ></app-analysis-graph>
+      </mat-expansion-panel>
+
+      <subtitle-block style='margin-top: 20px'
+      >连杆 {{this.activeSrv.selectedLink.name}} 的质心 (COM)</subtitle-block
+      >
+
+      <mat-expansion-panel
+        [expanded]="graphExpanded['LPos']"
+        (opened)="graphExpanded['LPos'] = true"
+        (closed)="graphExpanded['LPos'] = false"
+      >
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-panel-title>
+              连杆 {{this.activeSrv.selectedLink.name}} 质心的位置
+            </mat-panel-title>
+          </mat-panel-title>
+          <mat-panel-description>
+            <mat-icon
+              matTooltip='选定连杆质心的位置图'
+              [matTooltipShowDelay]='1000'
+              id='graph-help'
+            >help_outline
+            </mat-icon
+            >
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <app-analysis-graph
+          *ngIf='graphExpanded["LPos"]'
+          analysis='kinematic'
+          analysisType='loop'
+          mechProp="Linear Link's CoM Pos"
+          mechPart='{{ this.activeSrv.selectedLink.id }}'
+        ></app-analysis-graph>
+      </mat-expansion-panel>
+
+      <mat-expansion-panel
+        [expanded]="graphExpanded['LVel']"
+        (opened)="graphExpanded['LVel'] = true"
+        (closed)="graphExpanded['LVel'] = false"
+      >
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-panel-title>
+              连杆 {{this.activeSrv.selectedLink.name}} 质心的速度
+            </mat-panel-title>
+          </mat-panel-title>
+          <mat-panel-description>
+            <mat-icon
+              matTooltip='选定连杆质心的速度图'
+              [matTooltipShowDelay]='1000'
+              id='graph-help'
+            >help_outline
+            </mat-icon
+            >
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <app-analysis-graph
+          *ngIf='graphExpanded["LVel"]'
+          analysis='kinematic'
+          analysisType='loop'
+          mechProp="Linear Link's CoM Vel"
+          mechPart='{{ this.activeSrv.selectedLink.id }}'
+        ></app-analysis-graph>
+      </mat-expansion-panel>
+
+      <mat-expansion-panel
+        [expanded]="graphExpanded['LAcc']"
+        (opened)="graphExpanded['LAcc'] = true"
+        (closed)="graphExpanded['LAcc'] = false"
+      >
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-panel-title>
+              连杆 {{this.activeSrv.selectedLink.name}} 质心的加速度
+            </mat-panel-title>
+          </mat-panel-title>
+          <mat-panel-description>
+            <mat-icon
+              matTooltip='选定连杆质心的加速度图'
+              [matTooltipShowDelay]='1000'
+              id='graph-help'
+            >help_outline
+            </mat-icon
+            >
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <app-analysis-graph
+          *ngIf='graphExpanded["LAcc"]'
+          analysis='kinematic'
+          analysisType='loop'
+          mechProp="Linear Link's CoM Acc"
+          mechPart='{{ this.activeSrv.selectedLink.id }}'
+        ></app-analysis-graph>
+      </mat-expansion-panel>
+    </collapsible-subseciton>
+
+    <!-- Link Forces-->
+    <collapsible-subseciton *ngIf='settingsService.isForces.value' titleLabel='力分析'
+                            [expanded]="graphExpanded['LForceAna']"
+                            (opened)="graphExpanded['LForceAna'] = true"
+                            (closed)="graphExpanded['LForceAna'] = false">
+
+      <radio-block
+        tooltip='选择力分析在静力平衡还是动态条件下进行。动态分析的输入速度在设置面板中设定。'
+        option1='静力（平衡）'
+        option2='运动中（动态）'
+        [formGroup]='this.inputSpeedFormGroup'
+        _formControl='speed'
+      >力分析类型
+      </radio-block
+      >
+
+      <mat-expansion-panel
+        [expanded]="graphExpanded['LForce']"
+        (opened)="graphExpanded['LForce'] = true"
+        (closed)="graphExpanded['LForce'] = false"
+      >
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            连杆 {{this.activeSrv.selectedLink.name}} 的轴向力
+          </mat-panel-title>
+          <mat-panel-description>
+            <mat-icon
+              matTooltip='选定连杆截面上的轴向力随时间的变化图'
+              [matTooltipShowDelay]='1000'
+              id='graph-help'
+            >help_outline
+            </mat-icon
+            >
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        此功能尚未开放
+        <!-- <app-analysis-graph
+        analysis="force"
+        analysisType="{{ this.inputSpeedFormGroup.value.speed === 'One' ? 'dynamic' : 'static' }}"
+        mechProp="Joint Forces"
+        mechPart="{{ this.activeSrv.Joint.id }}"
+      ></app-analysis-graph> -->
+      </mat-expansion-panel>
+
+      <mat-expansion-panel
+        [expanded]="graphExpanded['LStress']"
+        (opened)="graphExpanded['LStress'] = true"
+        (closed)="graphExpanded['LStress'] = false"
+      >
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            连杆 {{this.activeSrv.selectedLink.name}} 的轴向应力
+          </mat-panel-title>
+          <mat-panel-description>
+            <mat-icon
+              matTooltip='选定连杆最小截面上的轴向应力随时间的变化图'
+              [matTooltipShowDelay]='1000'
+              id='graph-help'
+            >help_outline
+            </mat-icon
+            >
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        此功能尚未开放
+        <!-- <app-analysis-graph
+        analysis="force"
+        analysisType="{{ this.inputSpeedFormGroup.value.speed === 'One' ? 'dynamic' : 'static' }}"
+        mechProp="Input Torque"
+        mechPart="{{ this.activeSrv.Joint.id }}"
+      ></app-analysis-graph> -->
+      </mat-expansion-panel>
+    </collapsible-subseciton>
+  </panel-section>
+
+  <!-- Forces Arrows-->
+  <panel-section
+    id='analysis-panel'
+    *ngIf="validMechanisms() && this.activeSrv.objType == 'Force'"
+  >
+    <title-block description='力没有分析图表。'>
+      力 {{this.activeSrv.selectedForce.name}} 的分析
+    </title-block>
+  </panel-section>
+
+  <!-- Export Button -->
+  <!--  <panel-section>-->
+  <!--    <button-block icon='download'> Export Analysis for {{ this.activeSrv.objType }} </button-block>-->
+  <!--  </panel-section>-->
+</div>

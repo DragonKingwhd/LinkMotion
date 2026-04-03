@@ -1,0 +1,203 @@
+<div id='synthesisWrapper'>
+  <panel-section>
+    <title-block description='跟随引导，完成轨迹设计与机构优化。'>
+      轨迹设计
+    </title-block>
+
+    <!-- Quick actions -->
+    <div class='quick-actions'>
+      <button-block *ngIf='currentStep > 0' icon='replay' [click]='resetGuide.bind(this)'>
+        重置
+      </button-block>
+      <button-block *ngIf='hasAnyTrajectory()' icon='delete_sweep' color='warn' [click]='clearAllTrajectories.bind(this)'>
+        清除所有轨迹
+      </button-block>
+    </div>
+
+    <!-- Step 0: Mechanism Readiness Check -->
+    <div class='guide-step' [class.active]='currentStep === 0'
+         [class.completing]='dissolvingStep === 0' [class.completed]='completedSteps[0]'
+         #step0>
+      <div class='step-header'>
+        <span class='step-num'>0</span>
+        <span class='step-title'>准备机构</span>
+      </div>
+      <div class='step-body' *ngIf='currentStep === 0'>
+        <p class='step-hint'>请在编辑模式中搭建机构，满足以下条件：</p>
+        <div class='checklist'>
+          <div class='check-item' [class.done]='checks.hasLinks'>
+            <mat-icon>{{checks.hasLinks ? 'check_circle' : 'radio_button_unchecked'}}</mat-icon>
+            <span>至少2根连杆</span>
+          </div>
+          <div class='check-item' [class.done]='checks.hasGround'>
+            <mat-icon>{{checks.hasGround ? 'check_circle' : 'radio_button_unchecked'}}</mat-icon>
+            <span>设置固定关节（右键关节→设为固定）</span>
+          </div>
+          <div class='check-item' [class.done]='checks.hasInput'>
+            <mat-icon>{{checks.hasInput ? 'check_circle' : 'radio_button_unchecked'}}</mat-icon>
+            <span>设置输入关节（右键固定关节→设为输入）</span>
+          </div>
+          <div class='check-item' [class.done]='checks.hasFreeJoint'>
+            <mat-icon>{{checks.hasFreeJoint ? 'check_circle' : 'radio_button_unchecked'}}</mat-icon>
+            <span>至少1个非固定关节（作为轨迹目标）</span>
+          </div>
+          <div class='check-item' [class.done]='checks.validDof'>
+            <mat-icon>{{checks.validDof ? 'check_circle' : 'radio_button_unchecked'}}</mat-icon>
+            <span>自由度 = 1（当前: {{getDof()}}）</span>
+          </div>
+        </div>
+        <p class='step-hint' style='margin-top: 8px'>
+          提示: 可从顶部<b>模板库</b>加载预设的四杆机构快速开始
+        </p>
+      </div>
+    </div>
+
+    <!-- Step 1: Select Joint -->
+    <div class='guide-step' [class.active]='currentStep === 1'
+         [class.completing]='dissolvingStep === 1' [class.completed]='completedSteps[1]'
+         #step1>
+      <div class='step-header'>
+        <span class='step-num'>1</span>
+        <span class='step-title'>选择目标关节</span>
+      </div>
+      <div class='step-body' *ngIf='currentStep === 1'>
+        <p class='step-hint'>选择一个非固定关节，它的运动轨迹将被优化</p>
+        <div class='joint-buttons'>
+          <button *ngFor='let joint of getSelectableJoints()'
+            mat-stroked-button
+            [color]='selectedJointId === joint.id ? "primary" : ""'
+            (click)='previewJoint(joint.id)'
+            class='joint-btn'
+            [class.arc-joint]='isArcOnlyJoint(joint.id)'
+            [class.coupler-joint]='!isArcOnlyJoint(joint.id)'>
+            {{joint.name}}
+            <span class='joint-badge' *ngIf='isArcOnlyJoint(joint.id)'>弧</span>
+            <span class='joint-badge coupler' *ngIf='!isArcOnlyJoint(joint.id)'>耦</span>
+          </button>
+        </div>
+        <div *ngIf='previewJointId && isArcOnlyJoint(previewJointId)' class='arc-warning'>
+          <mat-icon style='font-size:16px; width:16px; height:16px; vertical-align:middle; color:#e65100'>warning</mat-icon>
+          <b>{{previewJointId}}</b> 直接连接固定关节，只能画<b>圆弧</b>，无法拟合椭圆等复杂曲线。
+          <br><br>
+          建议：选中连杆 → "添加追踪点" → 选择追踪点作为目标，可画出椭圆、8字形等丰富曲线。
+        </div>
+        <div *ngIf='previewJointId && !isArcOnlyJoint(previewJointId)' class='coupler-hint'>
+          <mat-icon style='font-size:16px; width:16px; height:16px; vertical-align:middle; color:#2e7d32'>star</mat-icon>
+          <b>{{previewJointId}}</b> 是耦合点，可以画出丰富的曲线（椭圆、8字形等），推荐选择！
+        </div>
+        <div style='margin-top: 8px' *ngIf='previewJointId'>
+          <button-block icon='check' [click]='confirmJoint.bind(this)'>
+            确认选择 {{previewJointId}}
+          </button-block>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Draw Trajectory -->
+    <div class='guide-step' [class.active]='currentStep === 2'
+         [class.completing]='dissolvingStep === 2' [class.completed]='completedSteps[2]'
+         #step2>
+      <div class='step-header'>
+        <span class='step-num'>2</span>
+        <span class='step-title'>绘制目标轨迹</span>
+      </div>
+      <div class='step-body' *ngIf='currentStep === 2'>
+        <p class='step-hint'>在画布上按住拖拽，画出期望的运动曲线</p>
+        <button-block icon='draw' [click]='startDraw.bind(this)'>
+          手绘轨迹
+        </button-block>
+        <input #trajCSVFile style='display: none' type='file' accept='.csv'
+          (change)='importCSV($event)' />
+        <button-block icon='upload_file' [click]='clickCSVInput.bind(this)'>
+          导入CSV
+        </button-block>
+        <button-block *ngIf='hasTrajectory()' icon='delete' color='warn'
+          [click]='clearTrajectory.bind(this)'>
+          清除重画
+        </button-block>
+        <div *ngIf='hasTrajectory()' class='step-hint' style='margin-top:4px'>
+          已采集 {{getPointCount()}} 个点
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Optimize -->
+    <div class='guide-step' [class.active]='currentStep === 3'
+         [class.completing]='dissolvingStep === 3' [class.completed]='completedSteps[3]'
+         #step3>
+      <div class='step-header'>
+        <span class='step-num'>3</span>
+        <span class='step-title'>自动优化</span>
+      </div>
+      <div class='step-body' *ngIf='currentStep === 3'>
+        <p class='step-hint'>搜索最佳关节位置，误差越小轨迹越贴合</p>
+        <input-block type='number' [formGroup]='optimizeForm' _formControl='searchRadius'
+          tooltip='搜索半径越大越能找到更优解'>
+          搜索范围
+        </input-block>
+        <div class='opt-info'>
+          <div class='opt-info-title'>优化参数:</div>
+          <div *ngFor='let info of getOptJointInfo()' class='opt-joint-row'>
+            <span class='opt-joint-name'>{{info.name}}</span>
+            <span class='opt-joint-range'>X [{{info.xMin.toFixed(1)}} ~ {{info.xMax.toFixed(1)}}]</span>
+            <span class='opt-joint-range'>Y [{{info.yMin.toFixed(1)}} ~ {{info.yMax.toFixed(1)}}]</span>
+          </div>
+          <div class='opt-info-hint'>
+            固定不动: {{getFixedJointNames()}} (输入锚点)
+          </div>
+        </div>
+        <button-block icon='auto_fix_high'
+          [disabled]='optimizerService.isRunning$.value'
+          [click]='startOptimize.bind(this)'>
+          开始优化
+        </button-block>
+        <button-block icon='stop' color='warn'
+          [disabled]='!optimizerService.isRunning$.value'
+          [click]='stopOptimize.bind(this)'>
+          停止优化
+        </button-block>
+        <div *ngIf='getProgress()' class='progress-display'>
+          <span class='mode-tag'>{{getProgress().mode}}</span>
+          代数 {{getProgress().generation}} | 误差 {{getProgress().bestError.toFixed(4)}}
+        </div>
+        <div *ngIf='getProgress() && !optimizerService.isRunning$.value' style='margin-top: 8px'>
+          <button-block icon='check_circle' [click]='applyResult.bind(this)'>
+            应用最优结果
+          </button-block>
+          <button-block icon='replay' [click]='resetGuide.bind(this)'>
+            重新开始
+          </button-block>
+        </div>
+        <div *ngIf='getProgress() && !optimizerService.isRunning$.value && getProgress().bestError > 1' class='stuck-hint'>
+          误差较大？试试增大搜索范围到 10~20，或调整目标轨迹使其更接近机构当前工作空间。
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Apply -->
+    <div class='guide-step' [class.active]='currentStep === 4'
+         [class.completing]='dissolvingStep === 4' [class.completed]='completedSteps[4]'
+         #step4>
+      <div class='step-header'>
+        <span class='step-num'>4</span>
+        <span class='step-title'>应用结果</span>
+      </div>
+      <div class='step-body' *ngIf='currentStep === 4'>
+        <div *ngIf='getProgress()' class='progress-display final'>
+          最终误差: <b>{{getProgress().bestError.toFixed(4)}}</b>
+        </div>
+        <button-block icon='check_circle' [click]='applyResult.bind(this)'>
+          应用到机构
+        </button-block>
+        <button-block icon='replay' [click]='resetGuide.bind(this)'>
+          重新开始
+        </button-block>
+      </div>
+    </div>
+
+    <div class='gpu-hint'>
+      GPU加速: chrome://flags 搜索 WebGPU 并启用
+    </div>
+
+  </panel-section>
+</div>

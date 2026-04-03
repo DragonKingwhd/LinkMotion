@@ -1,0 +1,345 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+
+@mixin css($theme) {
+  $color-config: mat.get-color-config($theme);
+  $primary-palette: map.get($color-config, 'primary');
+  $accent-palette: map.get($color-config, 'accent');
+}
+
+#synthesisWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 10px;
+  position: relative;
+  overflow: visible;
+}
+
+// ===== Guide Steps =====
+
+.guide-step {
+  position: relative;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 4px;
+  background: #f5f5f5;
+  border-left: 3px solid #ccc;
+  transition: all 0.4s ease, opacity 0.5s ease, transform 0.5s ease, filter 0.5s ease;
+  overflow: hidden;
+
+  &.active {
+    background: #e8f0fe;
+    border-left-color: #1a73e8;
+    box-shadow: 0 1px 6px rgba(26, 115, 232, 0.15);
+  }
+
+  &.completing {
+    animation: dissolve 0.7s ease-out forwards;
+  }
+
+  &.completed {
+    height: 0;
+    padding: 0;
+    margin: 0;
+    opacity: 0;
+    overflow: hidden;
+    border: none;
+  }
+}
+
+@keyframes dissolve {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.97);
+    filter: blur(1px);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.92) translateY(-4px);
+    filter: blur(4px);
+    height: 0;
+    padding: 0;
+    margin: 0;
+  }
+}
+
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #1a73e8;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+
+  .completed & {
+    background: #34a853;
+  }
+}
+
+.step-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.step-body {
+  margin-top: 8px;
+  animation: fadeSlideIn 0.3s ease-out;
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.step-hint {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+// ===== Checklist =====
+
+.checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #888;
+  transition: color 0.3s;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #ccc;
+    transition: color 0.3s;
+  }
+
+  &.done {
+    color: #333;
+    mat-icon {
+      color: #34a853;
+    }
+  }
+}
+
+// ===== Joint Selection Buttons =====
+
+.joint-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 6px 0;
+}
+
+.joint-btn {
+  min-width: 44px !important;
+  height: 34px !important;
+  font-size: 13px !important;
+  position: relative;
+
+  .joint-badge {
+    display: inline-block;
+    font-size: 9px;
+    padding: 0 3px;
+    border-radius: 3px;
+    margin-left: 2px;
+    vertical-align: middle;
+    background: #ffcc80;
+    color: #e65100;
+  }
+
+  .joint-badge.coupler {
+    background: #a5d6a7;
+    color: #1b5e20;
+  }
+}
+
+.arc-warning {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: #fff3e0;
+  border: 1px solid #ffe0b2;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #bf360c;
+  line-height: 1.5;
+}
+
+.coupler-hint {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: #e8f5e9;
+  border: 1px solid #a5d6a7;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #1b5e20;
+  line-height: 1.5;
+}
+
+// ===== Progress Display =====
+
+.progress-display {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: #fff;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #444;
+  border: 1px solid #e0e0e0;
+
+  &.final {
+    background: #e8f5e9;
+    border-color: #a5d6a7;
+  }
+}
+
+.mode-tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  background: #1a73e8;
+  color: white;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+// ===== Optimization Info =====
+
+.opt-info {
+  background: #f8f9fa;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  font-size: 11px;
+}
+
+.opt-info-title {
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.opt-joint-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 2px 0;
+  color: #666;
+}
+
+.opt-joint-name {
+  font-weight: 600;
+  color: #1a73e8;
+  min-width: 24px;
+}
+
+.opt-joint-range {
+  font-family: monospace;
+  font-size: 10px;
+  color: #888;
+}
+
+.opt-info-hint {
+  margin-top: 4px;
+  color: #999;
+  font-size: 10px;
+}
+
+.stuck-hint {
+  margin-top: 6px;
+  padding: 6px 8px;
+  background: #fff3e0;
+  border: 1px solid #ffe0b2;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #e65100;
+  line-height: 1.4;
+}
+
+// ===== Quick Actions =====
+
+.quick-actions {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+
+  button-block {
+    flex: 1;
+  }
+}
+
+// ===== GPU Hint =====
+
+.gpu-hint {
+  font-size: 10px;
+  color: #999;
+  text-align: center;
+  margin-top: 12px;
+  padding: 4px;
+  line-height: 1.4;
+}
+
+// ===== Particles =====
+
+:host {
+  // Needed so particles can overflow the panel
+  overflow: visible !important;
+}
+
+.particle {
+  position: absolute;
+  width: var(--size, 4px);
+  height: var(--size, 4px);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 100;
+  animation: particleFly 0.7s var(--delay, 0s) ease-out forwards;
+}
+
+@keyframes particleFly {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) scale(0);
+  }
+}

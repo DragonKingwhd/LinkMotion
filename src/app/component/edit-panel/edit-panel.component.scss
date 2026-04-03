@@ -1,0 +1,35 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+
+@mixin css($theme) {
+  // Get the color config from the theme.
+  $color-config: mat.get-color-config($theme);
+  // Get the primary color palette from the color-config.
+  $primary-palette: map.get($color-config, 'primary');
+  $accent-palette: map.get($color-config, 'accent');
+  $typography-config: mat.get-typography-config($theme);
+  $background: map.get($theme, background);
+  $foreground: map.get($theme, foreground);
+
+  //Kinda sketchy...
+  panel-section {
+    max-width: 100%;
+    //overflow-x: hidden;
+  }
+
+  #editWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 10px;
+
+    //For child components, set border to dotted for debugging
+    //> * > * > * {
+    //  border: 1px dotted black;
+    //}
+  }
+
+  #errorMessage {
+    //font-weight: 300;
+  }
+}

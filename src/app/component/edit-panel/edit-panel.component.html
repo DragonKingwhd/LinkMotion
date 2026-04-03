@@ -1,0 +1,233 @@
+<div id='editWrapper'>
+  <panel-section-collapsible
+    [warning]='true'
+    [expanded]='false'
+    id='placeholderContainer'
+    *ngIf="hideEditPanel() && this.activeSrv.objType !== 'Grid'"
+  >
+    <title-block
+      alwaysShown
+      icon='expand_more'
+      description='停止动画或将时间滑块重置为0以进行编辑。'
+    >编辑帮助
+    </title-block>
+    <img src='assets/gifs/Stop.gif' />
+  </panel-section-collapsible>
+
+  <panel-section-collapsible
+    [warning]='true'
+    [expanded]='false'
+    id='placeholderContainer'
+    *ngIf="
+      (this.activeSrv.objType == 'Grid' || this.activeSrv.objType == 'Nothing') &&
+      mechanismService.joints.length == 0 &&
+      !hideEditPanel()
+    "
+  >
+    <title-block
+      alwaysShown
+      icon='expand_more'
+      description='在网格上右键单击以创建连杆。'
+    >编辑帮助
+    </title-block>
+    <img src='assets/gifs/Create.gif' />
+  </panel-section-collapsible>
+
+  <panel-section-collapsible
+    [warning]='true'
+    [expanded]='false'
+    id='placeholderContainer'
+    *ngIf="
+      this.activeSrv.objType == 'Grid' && mechanismService.joints.length != 0 && !hideEditPanel()
+    "
+  >
+    <title-block
+      alwaysShown
+      icon='expand_more'
+      description='选择一个关节或连杆以编辑其属性。'
+    >编辑帮助
+    </title-block>
+    <img src='assets/gifs/Click.gif' />
+  </panel-section-collapsible>
+
+  <!--  JOINT PANEL-->
+  <panel-section *ngIf="this.activeSrv.objType == 'Joint' && !hideEditPanel()">
+    <editable-title-block [deleteAction]='deleteJoint.bind(this)'>
+      编辑关节
+    </editable-title-block>
+    <collapsible-subseciton titleLabel='基本设置'
+                            [expanded]="sectionExpanded['JBasic']"
+                            (opened)="sectionExpanded['JBasic'] = true"
+                            (closed)="sectionExpanded['JBasic'] = false">
+      <dual-input-block
+        label1='X'
+        label2='Y'
+        formControl1='xPos'
+        formControl2='yPos'
+        [formGroup]='jointForm'
+        tooltip="关节的位置坐标，单位为{{
+          this.settingsService.lengthUnit.value == 0
+            ? '英寸'
+            : this.settingsService.lengthUnit.value == 1
+            ? '厘米'
+            : '米'
+        }}。"
+      >
+        关节位置
+      </dual-input-block>
+      <toggle-block
+        [formGroup]='jointForm'
+        _formControl='ground'
+        tooltip='将此关节设为固定关节（不可移动）。'
+      >
+        固定关节
+      </toggle-block>
+      <toggle-block
+        [addInput]='true'
+        [disableInput]='!(this.jointForm.controls["slider"].value)'
+        [formGroup]='jointForm'
+        _formControl='slider'
+        _formControlForInput='prisAngle'
+        tooltip='将此关节设为移动副（滑块）。同一时间只能有一个滑块关节。'
+      >
+        滑块
+      </toggle-block>
+      <tri-button
+        [joint]='activeSrv.selectedJoint'
+        [btn1Disabled]='!isWeldable(activeSrv.selectedJoint)'
+        [btn1Action]='mechanismService.weldJoint.bind(mechanismService)'
+        [btn2Disabled]='!activeSrv.selectedJoint.isWelded'
+        [btn2Action]='mechanismService.unweldSelectedJoint.bind(mechanismService)'
+        [btn3Disabled]='!canToggleInput(activeSrv.selectedJoint)'
+        [btn3Action]='mechanismService.adjustInput.bind(mechanismService)'
+        [btn3Icon]='gridUtils.isVisuallyInput(activeSrv.selectedJoint) ? "remove_input" : "add_input"'
+        [btn3Text]='gridUtils.isVisuallyInput(activeSrv.selectedJoint) ? "移除输入" : "设为输入"'
+      >
+      </tri-button>
+    </collapsible-subseciton>
+    <collapsible-subseciton titleLabel='视觉设置' [expanded]="sectionExpanded['JVisual']"
+                            (opened)="sectionExpanded['JVisual'] = true"
+                            (closed)="sectionExpanded['JVisual'] = false">
+      <toggle-block
+        [formGroup]='jointForm'
+        _formControl='curve'
+        tooltip='显示/隐藏关节的运动轨迹。'
+      >显示关节轨迹
+      </toggle-block>
+      <color-picker type='joint'>关节颜色</color-picker>
+    </collapsible-subseciton>
+    <collapsible-subseciton titleLabel='关节间距离' [expanded]="sectionExpanded['JDistToJ']"
+                            (opened)="sectionExpanded['JDistToJ'] = true"
+                            (closed)="sectionExpanded['JDistToJ'] = false">
+      <div *ngFor='let joint of listOfOtherJoints; let i=index'>
+        <!-- The repeated alias template -->
+        <dual-input-block label1='D' label2='⊾' tooltip='TODO' [formGroup]='jointForm' formSubGroup='otherJoints'
+                          [formControl1]='(i*2).toString()' [formControl2]='(i*2+1).toString()'
+                          (field1Entry)='setShowLinkLengthOverlay($event)'
+                          (field2Entry)='setShowLinkAngleOverlay($event)'
+                          [emitterOutputID]='i'>
+          关节 {{joint!.name}}</dual-input-block>
+      </div>
+    </collapsible-subseciton>
+  </panel-section>
+
+  <!--  LINK PANEL-->
+  <panel-section *ngIf="this.activeSrv.objType == 'Link' && !hideEditPanel()">
+    <editable-title-block [deleteAction]='deleteLink.bind(this)'>编辑连杆</editable-title-block>
+    <collapsible-subseciton [expanded]='true' titleLabel='基本设置' [expanded]="sectionExpanded['LBasic']"
+                            (opened)="sectionExpanded['LBasic'] = true"
+                            (closed)="sectionExpanded['LBasic'] = false">
+      <dual-input-block
+        label1='L'
+        label2='⊾'
+        formControl1='length'
+        formControl2='angle'
+        [formGroup]='linkForm'
+        tooltip='连杆的长度和角度。逆时针旋转为正角度（右手定则）。'
+        (field1Entry)='setShowLinkLengthOverlay($event)'
+        (field2Entry)='setShowLinkAngleOverlay($event)'
+        [disabled]='activeSrv.selectedLink.joints.length > 2'
+        [emitterOutputID]='-1'
+      >
+        连杆长度和角度
+      </dual-input-block>
+      <dual-button
+        but1Text='添加追踪点'
+        but1Icon='add_tracer'
+        but2Text='添加力'
+        but2Icon='add_force'
+        [but1Action]='mechanismService.addJointAtCOM.bind(mechanismService)'
+        [but2Action]='mechanismService.createForceAtCOM.bind(mechanismService)'
+        [btn2Disabled]='!settingsService.isForces.value'
+      >
+      </dual-button>
+    </collapsible-subseciton>
+    <collapsible-subseciton titleLabel='视觉设置' [expanded]="sectionExpanded['LVisual']"
+                            (opened)="sectionExpanded['LVisual'] = true"
+                            (closed)="sectionExpanded['LVisual'] = false">
+      <color-picker type='link' [link]='activeSrv.selectedLink'>连杆颜色</color-picker>
+    </collapsible-subseciton>
+    <collapsible-subseciton *ngIf='settingsService.isForces.value' titleLabel='质量设置'
+                            [expanded]="sectionExpanded['LMass']"
+                            (opened)="sectionExpanded['LMass'] = true"
+                            (closed)="sectionExpanded['LMass'] = false">
+      <input-block>连杆质量</input-block>
+      <dual-input-block>质心位置</dual-input-block>
+    </collapsible-subseciton>
+
+    <collapsible-subseciton
+      *ngIf='activeSrv.selectedLink.isCompound'
+      [expanded]="sectionExpanded['LCompound']"
+      (opened)="sectionExpanded['LCompound'] = true"
+      (closed)="sectionExpanded['LCompound'] = false"
+      titleLabel='复合连杆设置'
+    >
+      <dual-button but1Text='取消全部焊接' but1Icon='unweld_joint'
+                   [but1Action]='mechanismService.unweldAll.bind(mechanismService)'></dual-button>
+    </collapsible-subseciton>
+  </panel-section>
+
+  <!--  FORCE PANEL-->
+
+  <panel-section *ngIf="this.activeSrv.objType == 'Force' && !hideEditPanel()">
+    <editable-title-block [deleteAction]='deleteForce.bind(this)'>编辑力</editable-title-block>
+    <collapsible-subseciton titleLabel='基本设置' [expanded]="sectionExpanded['FBasic']"
+                            (opened)="sectionExpanded['FBasic'] = true"
+                            (closed)="sectionExpanded['FBasic'] = false">
+      <dual-input-block
+        label1='M'
+        label2='⊾'
+        formControl1='magnitude'
+        formControl2='angle'
+        [formGroup]='forceForm'
+        tooltip='力的大小和角度。逆时针旋转为正角度（右手定则）。'
+      >
+        大小和角度
+      </dual-input-block>
+      <dual-input-block
+        label1='X'
+        label2='Y'
+        formControl1='xComp'
+        formControl2='yComp'
+        [formGroup]='forceForm'
+        tooltip='力的X和Y分量（单位：牛顿 | 磅力）。'
+      >
+        力的分量
+      </dual-input-block>
+      <radio-block
+        [formGroup]='forceForm'
+        _formControl='isGlobal'
+        tooltip='力的参考坐标系。'
+        option1='局部坐标（连杆 {{ this.activeSrv.selectedForce.link.name }}）'
+        option2='全局坐标'
+      >
+        力的参考系
+      </radio-block>
+    </collapsible-subseciton>
+    <collapsible-subseciton titleLabel='视觉设置' [expanded]="sectionExpanded['FVisual']"
+                            (opened)="sectionExpanded['FVisual'] = true"
+                            (closed)="sectionExpanded['FVisual'] = false">
+      <color-picker type='force' [force]='activeSrv.selectedForce'>力的颜色</color-picker>
+    </collapsible-subseciton>
+  </panel-section>
+</div>

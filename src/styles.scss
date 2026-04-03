@@ -1,0 +1,41 @@
+/* You can add global styles to this file, and also import other style files */
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+
+  --mat-focus-indicator-border-width: 0;
+  --mat-mdc-focus-indicator-border-width: 0;
+
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE10+/Edge */
+  user-select: none; /* Standard */
+}
+
+
+:root {
+  --border-radius: 5px;
+  --mat-warning-color: #F44336;
+}
+
+/* Remove all default margins and padding */
+p {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.spacer5px {
+  height: 5px;
+  margin: -5px 0;
+}
+
+input {
+  margin: 0;
+}

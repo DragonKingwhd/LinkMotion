@@ -1,0 +1,111 @@
+@use '@angular/material' as mat;
+@use 'src/app/component/toolbar/toolbar.component.scss' as toolbar;
+@use 'src/app/component/left-tabs/left-tabs.component.scss' as left-tabs;
+@use 'src/app/component/animation-bar/animation-bar.component.scss' as animation-bar;
+@use 'app/component/BLOCKS/title/title.component.scss' as title-block;
+@use 'src/app/component/edit-panel/edit-panel.component.scss' as edit-panel;
+@use 'app/component/BLOCKS/button/button.component.scss' as button-block;
+@use 'app/component/BLOCKS/input/input.component.scss' as input-block;
+@use 'app/component/BLOCKS/panel-section/panel-section.component.scss' as panel-section;
+@use 'app/component/BLOCKS/panel-section-collapsible/panel-section-collapsible.component.scss'
+  as panel-section-collapsible;
+@use 'app/component/BLOCKS/dual-input/dual-input.component.scss' as dual-input-block;
+@use 'app/component/BLOCKS/radio/radio.component.scss' as radio-block;
+@use 'app/component/BLOCKS/subtitle/subtitle.component.scss' as subtitle-block;
+@use 'app/component/BLOCKS/toggle/toggle.component.scss' as toggle-block;
+@use 'app/component/BLOCKS/blocks.common.scss' as blocks-common;
+@use 'app/component/BLOCKS/editable-title/editable-title.component.scss' as editable-title-block;
+@use 'app/component/BLOCKS/collapsible-subseciton/collapsible-subseciton.component.scss' as collapsible-subseciton;
+@use 'app/component/BLOCKS/dual-button/dual-button.component.scss' as dual-button;
+@use 'app/component/BLOCKS/color-picker/color-picker.component.scss' as color-picker;
+@use 'app/component/BLOCKS/tri-button/tri-button.component.scss' as tri-button;
+@use 'src/app/component/analysis-panel/analysis-panel.component.scss' as analysis-panel;
+@use 'src/app/component/analysis-graph/analysis-graph.component.scss' as analysis-graph;
+@use 'src/app/component/right-panel/right-panel.component.scss' as right-panel;
+@use 'src/app/component/settings-panel/settings-panel.component.scss' as settings-panel;
+@use 'src/app/component/synthesis-panel/synthesis-panel.component.scss' as synthesis-panel;
+@use 'src/app/component/new-grid/new-grid.component.scss' as new-grid;
+@use 'src/app/component/context-menu/context-menu.component.scss' as context-menu;
+@use 'src/app/component/equation-panel/equation-panel.component.scss' as equation-panel;
+@use 'src/app/component/MODALS/templates/templates.component.scss' as templates;
+@use 'src/app/component/not-ready-warning/not-ready-warning.component.scss' as not-ready-warning;
+@use 'src/app/component/MODALS/enable-equations/enable-equations.component.scss' as enable-equations;
+@use 'src/app/component/bottombar/bottombar.component.scss' as bottombar;
+
+@include mat.core();
+@include mat.strong-focus-indicators();
+
+$my-primary: mat.define-palette(mat.$indigo-palette);
+$my-accent: mat.define-palette(mat.$amber-palette);
+
+$my-caption: mat.define-typography-level(
+        $font-family: Roboto,
+          //$font-weight: 400,
+        $font-size: 12px, //$line-height: 1.5, //$letter-spacing: 0.01px,
+);
+
+$my-body: mat.define-typography-level(
+        $font-family: Roboto,
+        $font-weight: 400,
+        $font-size: 14px,
+        $line-height: 18px,
+        $letter-spacing: 0.25px,
+);
+
+$my-input: mat.define-typography-level(
+        $font-family: Roboto,
+        $font-weight: 300,
+        $font-size: 14px,
+        $line-height: 18px,
+        $letter-spacing: 0.25px,
+);
+
+$my-theme: mat.define-light-theme(
+                (
+                        color: (
+                                primary: $my-primary,
+                                accent: $my-accent,
+                        ),
+                        typography: mat.define-typography-config(
+                                $caption: $my-caption,
+                                $body-2: $my-body,
+                                $body-1: $my-input,
+                        ),
+                )
+);
+
+@include mat.all-component-themes($my-theme);
+@include mat.strong-focus-indicators-theme($my-theme);
+@include toolbar.css($my-theme);
+@include left-tabs.css($my-theme);
+@include animation-bar.css($my-theme);
+@include edit-panel.css($my-theme);
+@include analysis-panel.css($my-theme);
+@include analysis-graph.css($my-theme);
+@include right-panel.css($my-theme);
+@include settings-panel.css($my-theme);
+@include synthesis-panel.css($my-theme);
+@include new-grid.css($my-theme);
+@include context-menu.css($my-theme);
+@include equation-panel.css($my-theme);
+@include not-ready-warning.css($my-theme);
+@include enable-equations.css($my-theme);
+@include bottombar.css($my-theme);
+
+@include blocks-common.css($my-theme);
+@include panel-section.css($my-theme);
+@include panel-section-collapsible.css($my-theme);
+@include title-block.css($my-theme);
+@include button-block.css($my-theme);
+@include input-block.css($my-theme);
+@include dual-input-block.css($my-theme);
+@include radio-block.css($my-theme);
+@include subtitle-block.css($my-theme);
+@include toggle-block.css($my-theme);
+@include editable-title-block.css($my-theme);
+@include collapsible-subseciton.css($my-theme);
+@include dual-button.css($my-theme);
+@include color-picker.css($my-theme);
+@include tri-button.css($my-theme);
+
+@include templates.css($my-theme);

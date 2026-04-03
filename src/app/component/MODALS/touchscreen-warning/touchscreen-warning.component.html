@@ -1,0 +1,15 @@
+<div class='modal'>
+  <h1 mat-dialog-title>检测到您正在使用手机或平板设备</h1>
+  <div mat-dialog-content>
+    <ul>
+      <li>您可以通过文件、模板或URL打开并编辑已有连杆机构。</li>
+      <li>无法使用右键菜单创建新连杆。</li>
+      <li>其他所有功能应正常工作。</li>
+    </ul>
+    <p>更好的触屏支持正在开发中。如果您发现任何问题或有建议，请通过右上角的帮助面板提交反馈！</p>
+  </div>
+  <div mat-dialog-actions align='end'>
+    <button mat-button (click)='onDismissClick()'>不再提示</button>
+    <button mat-raised-button cdkFocusInitial (click)='onNoClick()' color='primary'>继续</button>
+  </div>
+</div>

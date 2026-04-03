@@ -1,0 +1,37 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+
+@mixin css($theme) {
+  // Get the color config from the theme.
+  $color-config: mat.get-color-config($theme);
+  // Get the primary color palette from the color-config.
+  $primary-palette: map.get($color-config, 'primary');
+  $accent-palette: map.get($color-config, 'accent');
+  $typography-config: mat.get-typography-config($theme);
+  $background: map.get($theme, background);
+  $foreground: map.get($theme, foreground);
+
+  .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+
+    .label {
+      @include mat.typography-level($typography-config, 'body-2');
+      color: rgba(0, 0, 0, 0.6);
+      //font-size: 14px;
+      //font-weight: 200;
+    }
+
+    .label-help {
+      //margin-left: 5px;
+      transform: scale(0.65);
+      color: rgba(0, 0, 0, 0.3);
+    }
+
+    .spacer {
+      flex: 1 1 auto;
+    }
+  }
+}

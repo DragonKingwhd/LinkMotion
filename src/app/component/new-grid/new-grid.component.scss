@@ -1,0 +1,132 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+
+@mixin css($theme) {
+  // Get the color config from the theme.
+  $color-config: mat.get-color-config($theme);
+  // Get the primary color palette from the color-config.
+  $typography-config: mat.get-typography-config($theme);
+  $primary-palette: map.get($color-config, 'primary');
+  $accent-palette: map.get($color-config, 'accent');
+  $background: map.get($theme, background);
+  $foreground: map.get($theme, foreground);
+
+  #activeObjectHighlight {
+    fill: mat.get-color-from-palette($accent-palette, 500);
+    stroke: mat.get-color-from-palette($accent-palette, 500);
+    opacity: 0.3;
+  }
+
+  #axes_numbers {
+    fill: mat.get-color-from-palette($foreground, 'text');
+    paint-order: stroke;
+    stroke: white;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    alignment-baseline: middle;
+  }
+
+  #axes {
+    stroke: mat.get-color-from-palette($primary-palette, 500);
+  }
+
+  #hibox {
+    opacity: 0;
+  }
+
+  .animated {
+    transition: transform 0.3s ease;
+  }
+
+  .my-custom-snackbar {
+    // margin: 0 !important;
+    // position: absolute !important;
+    // right: 25px !important;
+    // top: 60px !important;
+    margin-top: 50px !important;
+    // transform: translateY(40px) !important;
+    // pointer-events: none !important;
+  }
+  .cdk-overlay-pane {
+    pointer-events: none !important;
+  }
+
+  #pathsHolder {
+    stroke: mat.get-color-from-palette($primary-palette, 900);
+  }
+
+  #targetTrajectoryHolder {
+    opacity: 0.85;
+  }
+
+  .joint-default {
+    filter: url(#elevation-1);
+    fill: mat.get-color-from-palette($accent-palette, 50);
+  }
+  .joint-highlight {
+    filter: url(#elevation-2);
+    fill: mat.get-color-from-palette($accent-palette, 100);
+  }
+  .joint-dragging {
+    filter: url(#elevation-3);
+    fill: mat.get-color-from-palette($accent-palette, 100);
+  }
+  .joint-selected {
+    filter: url(#elevation-1);
+    fill: mat.get-color-from-palette($accent-palette, 400);
+  }
+
+  .link-selected {
+    stroke: mat.get-color-from-palette($accent-palette, 400);
+  }
+
+  #mouseLocation {
+    position: absolute;
+    top: 35px;
+    left: 300px;
+    background: rgba(255, 255, 255, 0.7);
+  }
+
+  #coordinateFrame {
+    position: absolute;
+    right: 15px;
+    bottom: 80px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: var(--border-radius);
+    font-size: 22px;
+    padding: 10px;
+    font-weight: lighter;
+
+    #unitsLabel {
+      position: absolute;
+      top: 30px;
+      right: 30px;
+    }
+  }
+
+  .forceEndpointSquare {
+    fill: mat.get-color-from-palette($accent-palette, 50);
+    stroke: mat.get-color-from-palette($accent-palette, 500);
+
+    &:hover {
+      fill: mat.get-color-from-palette($accent-palette, 100);
+    }
+  }
+
+  .forceLine {
+    stroke: mat.get-color-from-palette($primary-palette, 900);
+  }
+
+  .forceArrow {
+    fill: mat.get-color-from-palette($primary-palette, 900);
+  }
+
+  .forceAnchor {
+    fill: mat.get-color-from-palette($primary-palette, 900);
+  }
+
+  .forceSelectedLine {
+    stroke: mat.get-color-from-palette($accent-palette, 500);
+  }
+
+}

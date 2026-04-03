@@ -1,0 +1,97 @@
+<div id='settingsWrapper'>
+  <panel-section>
+    <!-- {{ this.currentAngleUnit }} -->
+    <title-block>设置</title-block>
+    <collapsible-subseciton titleLabel='基本设置' [expanded]='true'>
+      <radio-block
+        option1='英制 (in)'
+        option2='公制 (cm)'
+        option3='国际单位 (m)'
+        [formGroup]='this.settingsForm'
+        _formControl='globalunit'
+        tooltip='选择用于分析的全局单位制。'
+        [disabled]='this.settingsService.animating.value'
+      >全局单位
+      </radio-block>
+      <radio-block
+        option1='度 (&deg;)'
+        option2='弧度'
+        [formGroup]='this.settingsForm'
+        _formControl='angleunit'
+        tooltip='选择角度使用的单位。这也会同步更新导出单位（如角速度等）。'
+        [disabled]='this.settingsService.animating.value'
+      >角度单位
+      </radio-block
+      >
+      <radio-block
+        option1='顺时针'
+        option2='逆时针'
+        [formGroup]='this.settingsForm'
+        _formControl='rotation'
+        tooltip='选择动画起始的旋转方向。注意：正角度始终为逆时针方向。'
+        [disabled]='this.settingsService.animating.value'
+      >输入方向
+      </radio-block>
+
+      <input-block
+        unit='度/秒'
+        type='number'
+        [formGroup]='this.settingsForm'
+        _formControl='speed'
+        tooltip='动画运行的速度。'
+      >输入速度
+      </input-block>
+    </collapsible-subseciton>
+
+    <collapsible-subseciton titleLabel='实验性功能'>
+      <!--      <toggle-block-->
+      <!--        [formGroup]='this.settingsForm'-->
+      <!--        _formControl='gravity'-->
+      <!--        tooltip='Allows users to assign weights to links and enables analysis options for torque and forces.'-->
+      <!--      >Enable Forces-->
+      <!--      </toggle-block>-->
+      <button-block *ngIf='!settingsService.isForces.value' customIcon='com' [click]='openEnableForceDialog.bind(this)'>
+        启用质量 / 力
+      </button-block>
+
+      <button-block *ngIf='!settingsService.isWeldedJointsEnabled.value' customIcon='weld_joint'
+                    [click]='openEnableWeldedDialog.bind(this)'>
+        启用焊接关节
+      </button-block>
+
+      <button-block *ngIf='!settingsService.isEquationsEnabled.value' icon='format_list_numbered'
+                    [click]='openEnablEquationsDialog.bind(this)'>
+        启用环路方程
+      </button-block>
+
+      <ng-container *ngIf='settingsService.isForces.value'>
+        <button-block icon='edit' [click]='sendComingSoon'>编辑力方向</button-block>
+        <button-block icon='edit' [click]='sendComingSoon'>编辑力矩中心</button-block>
+      </ng-container>
+
+    </collapsible-subseciton>
+    <collapsible-subseciton titleLabel='视觉设置' [expanded]='true'>
+      <toggle-block
+        [formGroup]='this.settingsForm'
+        _formControl='showMajorGrid'
+        tooltip='显示/隐藏主网格线。'>
+        网格
+      </toggle-block>
+      <toggle-block *ngIf='settingsService.isShowMajorGrid.value'
+                    [formGroup]='this.settingsForm'
+                    _formControl='showMinorGrid'
+                    tooltip='显示/隐藏次网格线。'>
+        次网格线
+      </toggle-block>
+      <input-block
+        type='number'
+        [formGroup]='this.settingsForm'
+        _formControl='objectScale'
+        tooltip='缩放所有连杆、关节和力。保存并重新加载后生效。（默认值：1）'
+      >对象缩放
+      </input-block>
+      <button-block icon='auto_fix_normal' [click]='updateObjectScale.bind(this)'>更新对象缩放</button-block>
+    </collapsible-subseciton>
+
+  </panel-section>
+</div>

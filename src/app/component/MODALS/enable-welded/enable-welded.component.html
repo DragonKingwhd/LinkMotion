@@ -1,0 +1,14 @@
+<div class='modal' id='weldedDialog'>
+  <div class='dialog-header'>
+    <h1 mat-dialog-title>启用焊接关节功能？</h1>
+    <button mat-icon-button mat-dialog-close>
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <img src='assets/WeldedDialog.png' alt='焊接关节模块' class='dialogImage'>
+  <app-not-ready-warning></app-not-ready-warning>
+  <div mat-dialog-actions align='end'>
+    <button mat-button (click)='onNoClick()'>取消</button>
+    <button mat-raised-button cdkFocusInitial (click)='onYesClick()' color='primary'>启用焊接关节</button>
+  </div>
+</div>
